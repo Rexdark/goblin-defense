@@ -1,4 +1,4 @@
-#include <Core/AssetManager.h>
+#include <Utils/AssetManager.h>
 
 #include <SFML/Graphics/Texture.hpp>
 
@@ -43,9 +43,7 @@ sf::Texture* AssetManager::loadTexture(const std::string& assetPath)
 {
 	sf::Texture* newTexture = new sf::Texture();
 
-	const bool loadOk = newTexture->loadFromFile(assetPath);
-
-	if (!loadOk)
+	if (!newTexture->loadFromFile(assetPath))
 	{
 		printf("There was an error loading the texture '%s'.\n", assetPath.c_str());
 		delete newTexture;

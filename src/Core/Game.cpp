@@ -8,12 +8,18 @@
 
 #include <Core/Game.h>
 #include <Core/World.h>
+#include <UI/MainMenu.h>
+#include <Utils/AssetManager.h>
 #include <Utils/Constants.h>
 #include <Utils/Tools.h>
 
 bool Game::init(GameCreateInfo& createInfo)
 {
-	assert(m_window == nullptr && m_world == nullptr && "Game is already initialized, we are about to leak memory");
+	assert(m_window == nullptr && "Game is already initialized, we are about to leak memory");
+
+    AssetManager* assetmanager =  new AssetManager();
+
+    m_assetManager = assetmanager->getInstance();
 
 	m_window = new sf::RenderWindow({ createInfo.screenWidth, createInfo.screenHeight }, createInfo.gameTitle);
 	m_window->setFramerateLimit(createInfo.frameRateLimit);
@@ -23,11 +29,9 @@ bool Game::init(GameCreateInfo& createInfo)
     m_view.setSize(640.f, 320.f);
     m_window->setView(m_view);
 
+    m_gameState = State_MainMenu;
 
-	m_world = new World();
-	const bool loadOk = m_world->load();
-
-	return loadOk;
+	return true;
 }
 
 Game::~Game()
@@ -54,24 +58,116 @@ void Game::update(uint32_t deltaMilliseconds)
         }
     }
 
+    switch (m_gameState) {
 
-	// Update scene here
-	m_world->update(deltaMilliseconds);
+        int option;
+
+        case State_MainMenu:
+
+            if (!m_mainMenu)
+            {
+                m_mainMenu = new MainMenu(m_view.getSize().x, m_view.getSize().y, m_assetManager);
+            }
+            option = m_mainMenu->menuLogic(m_window);
+
+            if (option != -1)
+            {
+
+                if (option == 0)
+                {
+                    newGame = true;
+                    m_gameState = State_World;
+                }
+                if (option == 1)
+                {
+                    m_gameState = State_World;
+                }
+                if (option == 2)
+                {
+                    m_window->close();
+                    exit(0);
+                }
+            }
+
+            break;
+
+        case State_World:
+
+            if (!m_world)
+            {
+                m_world = new World();
+
+                if (!m_world->load(newGame))
+                {
+                    printf("Game world couldn't be loaded!");
+                    m_window->close();
+                }
+            }
+
+            m_world->update(deltaMilliseconds);
+
+            break;
+
+        default:
+
+            printf("CRITICAL ERROR: Unrecognized game state! Going back to main menu.");
+
+            delete m_mainMenu;
+            delete m_world;
+
+            m_gameState = State_MainMenu;
+
+            break;
+    }
 }
 
 void Game::render()
 {
-	m_window->clear();
+    switch (m_gameState) {
 
-	m_world->render(*m_window);
+        case State_MainMenu:
 
-	m_window->display();
+            m_window->clear();
+
+            if (m_mainMenu)
+            {
+                m_mainMenu->draw(*m_window);
+            }
+
+            m_window->display();
+
+            break;
+
+        case State_World:
+            
+           m_window->clear(); 
+           
+           if (m_world)
+           {
+               m_world->render(*m_window);
+           }
+
+           m_window->display();
+
+            break;
+
+        default:
+
+            printf("CRITICAL ERROR: Unrecognized game state! Going back to main menu.");
+
+            delete m_mainMenu;
+            delete m_world;
+
+            m_gameState = State_MainMenu;
+
+            break;
+    }
 }
 
 
 void createDefaultConfigFile(std::string configPath)
 {
-    std::string gameTitle = GAME_TITLE;
+    //std::string gameTitle = GAME_TITLE;
     uint32_t screenWidth = SCREEN_WIDTH;
     uint32_t screenHeight = SCREEN_HEIGHT;
     uint32_t frameRateLimit = FRAMERATE;
@@ -89,7 +185,7 @@ void createDefaultConfigFile(std::string configPath)
     }
 
     configFile << "[GameSettings]" << std::endl;
-    configFile << "GameTitle=" << gameTitle << std::endl;
+    //configFile << "GameTitle=" << gameTitle << std::endl;
     configFile << "ScreenWidth=" << screenWidth << std::endl;
     configFile << "ScreenHeight=" << screenHeight << std::endl;
     configFile << "FrameRateLimit=" << frameRateLimit << std::endl;
@@ -100,6 +196,8 @@ void createDefaultConfigFile(std::string configPath)
 Game::GameCreateInfo loadFromConfig(std::string configPath)
 {
     Game::GameCreateInfo gameInfo;
+
+    gameInfo.gameTitle = GAME_TITLE;
 
     if (!fileExists(configPath))
     {
@@ -118,12 +216,7 @@ Game::GameCreateInfo loadFromConfig(std::string configPath)
     std::string line;
     while (std::getline(configFile, line))
     {
-        // Check for each setting
-        if (line.find("GameTitle=") == 0)
-        {
-            gameInfo.gameTitle = line.substr(10);
-        }
-        else if (line.find("ScreenWidth=") == 0)
+        if (line.find("ScreenWidth=") == 0)
         {
             gameInfo.screenWidth = std::stoi(line.substr(12));
         }

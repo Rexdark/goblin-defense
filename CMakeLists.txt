@@ -20,20 +20,9 @@ FetchContent_Declare(
     SOURCE_SUBDIR tmxlite)
 FetchContent_MakeAvailable(TMXLITE)
 
-# Download and add TinyXML2 as a dependency
-#FetchContent_Declare(
-#    TinyXML2
-#    GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
-#    GIT_TAG 9.0.0 # Cambia esta versión si necesitas otra
-#)
-#FetchContent_MakeAvailable(TinyXML2)
-
 
 set(PROJECT_HEADERS 
-    include/Utils/Constants.h 
-    include/Utils/Tools.h
 
-    include/Core/AssetManager.h
     include/Core/Game.h
     include/Core/World.h
     include/Core/Level.h
@@ -44,19 +33,26 @@ set(PROJECT_HEADERS
 
     include/Render/SFMLOrthogonalLayer.h
 
-    include/UI/UIScreenMainMenu.h
+    include/UI/MainMenu.h    
+
+    include/Utils/AssetManager.h
+    include/Utils/Constants.h 
+    include/Utils/Tools.h
 )
 
 set(PROJECT_SOURCES 
-	src/Utils/Tools.cpp
 
-    src/Core/AssetManager.cpp
     src/Core/Game.cpp
     src/Core/World.cpp
     src/Core/Level.cpp
 
     src/Gameplay/Enemy.cpp
     src/Gameplay/Zombie.cpp
+
+    src/UI/MainMenu.cpp   
+
+    src/Utils/AssetManager.cpp 
+    src/Utils/Tools.cpp
 
     src/main.cpp
 )
@@ -66,7 +62,6 @@ set(PROJECT_FILES
   ${PROJECT_SOURCES}
 )
 
-#include_directories(${tinyxml2_SOURCE_DIR})
 include_directories(${PROJECT_NAME} PRIVATE ${tmxlite_INCLUDE_DIR} include)
 
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})

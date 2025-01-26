@@ -1,13 +1,19 @@
 #pragma once
 
+#include <iostream>
 #include <cstdint>
 #include <string>
+
 #include <SFML/Graphics/View.hpp>
+#include <Utils/AssetManager.h>
+
 
 namespace sf
 {
 	class RenderWindow;
 }
+
+class MainMenu;
 
 class World;
 
@@ -25,6 +31,8 @@ class Game
 
 		~Game();
 
+		AssetManager* m_assetManager{ nullptr };
+
 		bool init(GameCreateInfo& createInfo);
 
 		bool isRunning() const;
@@ -37,7 +45,16 @@ class Game
 		sf::RenderWindow* m_window{ nullptr };
 		sf::View m_view;
 
+		//GameCreateInfo* m_gameinfo{ nullptr };
+
+		enum states { State_MainMenu, State_World };
+
+		states m_gameState;
+
+		MainMenu* m_mainMenu{ nullptr };
 		World* m_world{ nullptr };
+
+		bool newGame = false;
 };
 
 void createDefaultConfigFile(std::string configPath);

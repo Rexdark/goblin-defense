@@ -9,12 +9,12 @@ World::~World()
 	//delete m_layerTwo;
 }
 
-bool World::load()
+bool World::load(bool newGame)
 {
 	//printf("Creating level.\n");
 
 	m_level = new Level();
-	m_level->init(); //Set argument to true to clear current map.
+	m_level->init(newGame); //Set argument to true to clear current map.
 
 	if (m_level)
 	{

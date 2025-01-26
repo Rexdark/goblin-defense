@@ -8,7 +8,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <tmxlite/TileLayer.hpp>
 
-#include <Core/AssetManager.h>
+#include <Utils/AssetManager.h>
 #include "Core/Level.h"
 #include "Utils/Constants.h"
 #include "Utils/Tools.h"
@@ -161,7 +161,7 @@ void Level::populateTilemapVector3()
                 (*m_tilemap_vector3)[layer][row][col] = tile.ID;
             }
         }
-    }    
+    }
 }
 
 void Level::deleteTilemapVector3()
@@ -219,7 +219,8 @@ void Level::saveToFile()
     }
 
     file.close();
-    //printf("Map saved!\n");
+
+    deleteTilemapVector3();
 }
 
 void Level::loadFromFile()
@@ -273,51 +274,12 @@ void Level::loadFromFile()
         }
     }
 
+    file.close();
+
     populateTilemapLayers();
 
-    file.close();
-    //printf("Map loaded successfully!\n");
+    deleteTilemapVector3();
 }
-
-//void Level::render(sf::RenderWindow& window) // From x toX and fromy ToY, amount will be set by Zoom level
-//{
-//    //Debug to check if stuck
-//    //printf("RENDERING!\n");
-//
-//    int layers = getLayers();
-//    int rows = getRows();
-//    int cols = getCols();
-//
-//    if (m_tilemap_vector3->empty()) {
-//        printf("ERROR:Tilemap is empty!\n");
-//    }
-//
-//    for (int layer = 0; layer < layers; ++layer)
-//    {
-//        for (int row = 0; row < rows; ++row)
-//        {
-//            for (int col = 0; col < cols; ++col)
-//            {
-//                int tileValue = (*m_tilemap_vector3)[layer][row][col];
-//
-//                sf::RectangleShape tile(sf::Vector2f(tileSize, tileSize));
-//                tile.setPosition(col * tileSize, row * tileSize);
-//
-//                if (tileValue == 0) {
-//                    tile.setFillColor(sf::Color::Green);
-//                }
-//                else if (tileValue == 1) {
-//                    tile.setFillColor(sf::Color::Red);
-//                }
-//                else {
-//                    tile.setFillColor(sf::Color::Blue);
-//                }
-//
-//                window.draw(tile);
-//            }
-//        }
-//    }
-//}
 
 void Level::render(sf::RenderWindow& window)
 {

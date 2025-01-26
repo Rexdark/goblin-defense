@@ -18,7 +18,7 @@ class World
 
 		~World();
 
-		bool load();
+		bool load(bool newGame = false);
 		void unload();
 
 		void update(uint32_t deltaMilliseconds);
