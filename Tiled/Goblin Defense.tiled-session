@@ -1,0 +1,85 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "Tileset/Scene.tmx",
+    "expandedProjectPaths": [
+        "Tileset",
+        "."
+    ],
+    "file.lastUsedOpenFilter": "Todos los archivos (*)",
+    "fileStates": {
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/demo.tmx": {
+            "scale": 2.1127604166666667,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 479.94083569579686,
+                "y": 255.82645137433747
+            }
+        },
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/demo.tmx#tileset": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/platform.tmx": {
+            "scale": 0.15845703125,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 6399.211142610626,
+                "y": 1277.948970787625
+            }
+        },
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/platform.tmx#tileset02": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/images/tilemap/platform.tsx": {
+            "scaleInDock": 1
+        },
+        "Tileset/Scene.tmx": {
+            "scale": 3.1023437499999997,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 319.7582472928733,
+                "y": 214.51523545706368
+            }
+        },
+        "Tileset/grass_biome.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "Tileset/map1.tmx": {
+            "scale": 1.2497023809523808,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 167.63991426530126,
+                "y": 335.6799237913789
+            }
+        },
+        "Tileset/map2.tmx": {
+            "scale": 2.44625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 119.97956055186506,
+                "y": 119.97956055186512
+            }
+        }
+    },
+    "map.height": 20,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 40,
+    "openFiles": [
+        "Tileset/Scene.tmx",
+        "Tileset/grass_biome.tsx"
+    ],
+    "project": "Goblin Defense.tiled-project",
+    "recentFiles": [
+        "Tileset/grass_biome.tsx",
+        "Tileset/Scene.tmx",
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/platform.tmx",
+        "C:/Users/Mario/Documents/TheCoreC++/cmake-sfml-project-master/data/Levels/demo.tmx",
+        "Tileset/map1.tmx",
+        "Tileset/map2.tmx"
+    ]
+}
