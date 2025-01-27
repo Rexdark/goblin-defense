@@ -19,7 +19,7 @@ class MainMenu
 
         sf::Texture* m_background{ nullptr };
 
-        sf::RectangleShape m_backgroundCanvas;
+        sf::RectangleShape m_backgroundCanvas{ sf::Vector2f(0, 0) };
 
         sf::Text m_gameTitle;
 

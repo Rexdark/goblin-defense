@@ -1,6 +1,7 @@
 #include <cassert>
 #include <fstream>
 #include <filesystem>
+#include <thread>
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -64,10 +65,14 @@ void Game::update(uint32_t deltaMilliseconds)
 
         case State_MainMenu:
 
+            deleteWorld();
+
             if (!m_mainMenu)
             {
+                printf("Instantiating new main menu.\n");
                 m_mainMenu = new MainMenu(m_view.getSize().x, m_view.getSize().y, m_assetManager);
             }
+
             option = m_mainMenu->menuLogic(m_window);
 
             if (option != -1)
@@ -77,10 +82,12 @@ void Game::update(uint32_t deltaMilliseconds)
                 {
                     newGame = true;
                     m_gameState = State_World;
+                    deleteMainMenu();
                 }
                 if (option == 1)
                 {
                     m_gameState = State_World;
+                    deleteMainMenu();
                 }
                 if (option == 2)
                 {
@@ -97,14 +104,19 @@ void Game::update(uint32_t deltaMilliseconds)
             {
                 m_world = new World();
 
-                if (!m_world->load(newGame))
+                if (!m_world->load(newGame, m_view.getSize().x, m_view.getSize().y, m_assetManager))
                 {
                     printf("Game world couldn't be loaded!");
                     m_window->close();
                 }
             }
 
-            m_world->update(deltaMilliseconds);
+            if (m_world->update(deltaMilliseconds, m_window))
+            {
+                printf("Returning to main menu.\n");
+                m_gameState = State_MainMenu;
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            }
 
             break;
 
@@ -112,10 +124,10 @@ void Game::update(uint32_t deltaMilliseconds)
 
             printf("CRITICAL ERROR: Unrecognized game state! Going back to main menu.");
 
-            delete m_mainMenu;
-            delete m_world;
-
             m_gameState = State_MainMenu;
+
+            deleteMainMenu();
+            deleteWorld();
 
             break;
     }
@@ -162,6 +174,27 @@ void Game::render()
 
             break;
     }
+}
+
+void Game::deleteMainMenu()
+{
+    if (m_mainMenu)
+    {
+        delete m_mainMenu;
+        m_mainMenu = { nullptr };
+    }
+}
+
+void Game::deleteWorld()
+{
+    if (m_world)
+    {
+        m_world->unload();
+
+        delete m_world;
+        m_world = { nullptr };
+    }
+
 }
 
 

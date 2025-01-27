@@ -27,6 +27,7 @@ set(PROJECT_HEADERS
     include/Core/World.h
     include/Core/Level.h
 
+    include/Gameplay/EconomyManager.h
     include/Gameplay/Enemy.h
     include/Gameplay/GameObject.h
     include/Gameplay/Zombie.h
@@ -34,6 +35,7 @@ set(PROJECT_HEADERS
     include/Render/SFMLOrthogonalLayer.h
 
     include/UI/MainMenu.h    
+    include/UI/Interface.h    
 
     include/Utils/AssetManager.h
     include/Utils/Constants.h 
@@ -45,11 +47,13 @@ set(PROJECT_SOURCES
     src/Core/Game.cpp
     src/Core/World.cpp
     src/Core/Level.cpp
-
+    
+    src/Gameplay/EconomyManager.cpp
     src/Gameplay/Enemy.cpp
     src/Gameplay/Zombie.cpp
 
     src/UI/MainMenu.cpp   
+    src/UI/Interface.cpp   
 
     src/Utils/AssetManager.cpp 
     src/Utils/Tools.cpp

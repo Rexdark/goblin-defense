@@ -55,6 +55,9 @@ class Game
 		World* m_world{ nullptr };
 
 		bool newGame = false;
+
+		void deleteMainMenu();
+		void deleteWorld();
 };
 
 void createDefaultConfigFile(std::string configPath);

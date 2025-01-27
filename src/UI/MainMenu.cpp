@@ -16,7 +16,7 @@ MainMenu::MainMenu(float width, float height, AssetManager* assetManager)
     m_backgroundCanvas.setSize(sf::Vector2(width, height));
     m_backgroundCanvas.setTexture(m_background);
 
-    if (!m_font.loadFromFile(FONT)) 
+    if (!m_font.loadFromFile(FONT))
     {
         printf("Game font could not be loaded at %s.\n", FONT);
     }
@@ -27,7 +27,7 @@ MainMenu::MainMenu(float width, float height, AssetManager* assetManager)
     m_gameTitle.setString(GAME_TITLE);
     m_gameTitle.setCharacterSize(36);
     m_gameTitle.setFillColor(sf::Color::Black);
-    m_gameTitle.setPosition(width / 2 - m_gameTitle.getGlobalBounds().width / 2, height/10);
+    m_gameTitle.setPosition(width / 2 - m_gameTitle.getGlobalBounds().width / 2, height / 10);
 
     for (size_t i = 0; i < options.size(); ++i) {
         sf::Text text;
@@ -42,7 +42,7 @@ MainMenu::MainMenu(float width, float height, AssetManager* assetManager)
     m_selectedItemIndex = -1;
 }
 
-void MainMenu::draw(sf::RenderWindow& window) 
+void MainMenu::draw(sf::RenderWindow& window)
 {
     window.draw(m_backgroundCanvas);
     window.draw(m_gameTitle);
@@ -58,17 +58,17 @@ int MainMenu::menuLogic(sf::RenderWindow* window)
 
     bool buttonFound = false;
 
-    for (size_t i = 0; i < m_menuItems.size(); ++i) 
+    for (int i = 0; i < m_menuItems.size(); ++i)
     {
         sf::FloatRect bounds = m_menuItems[i].getGlobalBounds();
 
-        if (bounds.contains(mousePos)) 
+        if (bounds.contains(mousePos))
         {
             if (m_selectedItemIndex != -1)
             {
                 m_menuItems[m_selectedItemIndex].setFillColor(sf::Color::Black);
             }
-            m_selectedItemIndex = i; 
+            m_selectedItemIndex = i;
             m_menuItems[m_selectedItemIndex].setFillColor(sf::Color::Red);
 
             buttonFound = true;

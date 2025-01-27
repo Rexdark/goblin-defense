@@ -33,6 +33,9 @@ class Level
 
         void render(sf::RenderWindow& window);
 
+        void saveToFile();
+        void loadFromFile();
+
     private:
 
         std::string mapTMXPath = "";
@@ -59,7 +62,4 @@ class Level
         int getMapLayerNumber();
         int getMapRowNumber();
         int getMapColNumber();
-
-        void saveToFile();
-        void loadFromFile();
 };

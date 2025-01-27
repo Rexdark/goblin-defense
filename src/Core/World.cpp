@@ -1,38 +1,47 @@
 #include <Core/Level.h>
 #include <Core/World.h>
+#include <Gameplay/EconomyManager.h>
+#include <UI/Interface.h>
 
-World::~World()
+bool World::load(bool newGame, float width, float height, AssetManager* assetManager)
 {
-	delete m_level;
-	//delete m_layerZero;
-	//delete m_layerOne;
-	//delete m_layerTwo;
-}
-
-bool World::load(bool newGame)
-{
-	//printf("Creating level.\n");
 
 	m_level = new Level();
-	m_level->init(newGame); //Set argument to true to clear current map.
+	m_level->init(newGame);
+
+	m_economyManager = new EconomyManager();
+
+	m_interface = new Interface();	
+	m_interface->interfaceInit(width, height, assetManager, m_economyManager, m_level);
 
 	if (m_level)
 	{
-		//printf("Level created.\n");
-
 		return true;
 	}
 	else
 	{
-		//printf("Level couldn't be created correctly.\n");
-
+		printf("There was an error loading the map!\n");
 		return false;
 	}
 }
 
 void World::unload()
 {
-	delete m_level;
+	if (m_level)
+	{
+		delete m_level;
+		m_level = { nullptr };
+	}
+	if (m_economyManager)
+	{
+		delete m_economyManager;
+		m_economyManager = { nullptr };
+	}
+	if (m_interface)
+	{
+		delete m_interface;
+		m_interface = { nullptr };
+	}
 }
 
 //void World::update(uint32_t deltaMilliseconds)
@@ -56,9 +65,9 @@ void World::unload()
 //	}
 //}
 
-void World::update(uint32_t deltaMilliseconds)
+bool World::update(uint32_t deltaMilliseconds, sf::RenderWindow* window)
 {
-
+	return m_interface->update(window);
 }
 
 void World::render(sf::RenderWindow& window)
@@ -70,4 +79,6 @@ void World::render(sf::RenderWindow& window)
 	m_enemy->render(window);*/
 
 	m_level->render(window);
+	m_interface->draw(window);
+
 }

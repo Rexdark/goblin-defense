@@ -289,6 +289,8 @@ void Level::render(sf::RenderWindow& window)
     }
 }
 
+//NEEDS UPDATE TO WORK WITH TMXLITE MAPS OR OVER THE VECTOR3 AND THEN AN UPDATE METHOD !!
+
 int Level::getMapLayerNumber()
 {
     const auto& layers = m_tilemap->getLayers();
