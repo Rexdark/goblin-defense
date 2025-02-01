@@ -1,4 +1,5 @@
 #include <Utils/AssetManager.h>
+#include <Utils/Constants.h>
 
 #include <SFML/Graphics/Texture.hpp>
 
@@ -16,10 +17,8 @@ AssetManager* AssetManager::getInstance()
 
 AssetManager::~AssetManager()
 {
-	for (auto it : m_texturePathToTexture)
-	{
-		delete it.second;
-	}
+	clear();
+	delete s_instance;
 }
 
 sf::Texture* AssetManager::getTexture(const std::string& filePath)
@@ -71,6 +70,52 @@ void AssetManager::unloadTexture(const std::string& filePath)
 	}
 }
 
+
+sf::Sprite* AssetManager::getSprite(const std::string& filePath)
+{
+	std::string assetPath = TEXURES_PATH + filePath;
+
+	auto is = m_spritePathToTexture.find(assetPath);
+
+	if (is != m_spritePathToTexture.end())
+	{
+		return is->second;
+	}
+	else
+	{
+		return loadSprite(filePath); //We use only the file path to avoid duplicaning directory path on loadTexture
+	}
+}
+
+sf::Sprite* AssetManager::loadSprite(const std::string& assetPath)
+{
+	sf::Sprite* newSprite = new sf::Sprite();
+	sf::Texture* textureToLoad = getTexture(assetPath);
+
+	newSprite->setTexture(*textureToLoad);
+
+	m_spritePathToTexture[assetPath] = newSprite;
+
+	return newSprite;
+}
+
+void AssetManager::unloadSprite(const std::string& filePath)
+{
+	std::string assetPath = TEXURES_PATH + filePath;
+
+	auto is = m_spritePathToTexture.find(assetPath);
+
+	if (is != m_spritePathToTexture.end())
+	{
+		delete is->second;
+		m_spritePathToTexture.erase(is);
+	}
+	else
+	{
+		printf("Sprite with the texture at path '%s' did not exist!\n", assetPath.c_str());
+	}
+}
+
 void AssetManager::clear()
 {
 	for (auto& it : m_texturePathToTexture)
@@ -78,4 +123,10 @@ void AssetManager::clear()
 		delete it.second;
 	}
 	m_texturePathToTexture.clear();
+
+	for (auto& it : m_spritePathToTexture)
+	{
+		delete it.second;
+	}
+	m_spritePathToTexture.clear();
 }

@@ -5,14 +5,16 @@
 
 #include <Core/Level.h>
 #include <Gameplay/EconomyManager.h>
+#include <Gameplay/EnemyManager.h>
 #include "UI/Interface.h"
 #include <Utils/AssetManager.h>
 #include <Utils/Constants.h>
 
-void Interface::interfaceInit(float width, float height, AssetManager* assetManager, EconomyManager* economyManager, Level* level)
+void Interface::interfaceInit(float width, float height, AssetManager* assetManager, EconomyManager* economyManager, EnemyManager* enemyManager, Level* level)
 {
     m_economyManager = economyManager;
     m_level = level;
+    m_enemyManager = enemyManager;
 
     if (!m_font.loadFromFile(FONT))
     {
@@ -77,7 +79,19 @@ void Interface::interfaceInit(float width, float height, AssetManager* assetMana
 
 bool Interface::update(sf::RenderWindow* window)
 {
-    return interfaceLogic(window); //Go back to main menu if true
+    buildingLogic(window);
+
+    if (inCombat)
+    {
+        if (m_enemyManager->checkEnemyArrayEmpty())
+        {
+            inCombat = false;
+        }
+    }
+
+    bool exitMenu = interfaceLogic(window); //Go back to main menu if true
+
+    return exitMenu;
 }
 
 void Interface::draw(sf::RenderWindow& window)
@@ -90,8 +104,11 @@ void Interface::draw(sf::RenderWindow& window)
     }
 
     //Next Turn Button
-    window.draw(m_nextTurnButton);
-    window.draw(m_nextTurnText);
+    if (!inCombat)
+    {
+        window.draw(m_nextTurnButton);
+        window.draw(m_nextTurnText);
+    }
 
     //Pause Menu
     if (pauseMenu)
@@ -238,11 +255,17 @@ bool Interface::interfaceLogic(sf::RenderWindow* window)
             m_buttons[i]->setFillColor(sf::Color::White);
         }
         selectedItemIndex = -1;
+        mouseOverMenu = false;
+    }
+    else
+    {
+        mouseOverMenu = true;
+        m_level->setBuildMode(false);
     }
 
     //printf("Selected item index %d.\n", selectedItemIndex);
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && buttonFound)
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && buttonFound && !inCombat)
     {
         return executeLogicAction(selectedItemIndex);
     }
@@ -258,7 +281,7 @@ bool Interface::interfaceLogic(sf::RenderWindow* window)
             pauseMenu = true;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); //Avoids blinking interface.
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); //Avoids blinking interface.
     }
 
     return false;
@@ -266,12 +289,9 @@ bool Interface::interfaceLogic(sf::RenderWindow* window)
 
 bool Interface::executeLogicAction(int index)
 {
-    if (index == 0 && !computingTurn) //Next Turn
+    if (index == 0) //Next Turn
     {
-        computingTurn = true;
         nextTurn();
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); //This might be removed when the autobattles get in as player will ahve to wait for it to resolve.
-        computingTurn = false;
     }
     else if (index == 1 && pauseMenu) //Resume Game
     {
@@ -293,6 +313,8 @@ bool Interface::executeLogicAction(int index)
 void Interface::nextTurn()
 {
     m_economyManager->nextTurn();
+    inCombat = true;
+    m_enemyManager->EnemyManager::getInstance()->spawnEnemies(5, "Goblin", m_level->getEnemySpawnTiles());
     updateTexts();
 }
 
@@ -301,4 +323,34 @@ void Interface::updateTexts()
     for (size_t i = 0; i < m_interfaceItems.size(); ++i) {
         m_interfaceItems[i].setString(getResourceTextString(i, m_economyManager));
     }
+}
+
+void Interface::buildingLogic(sf::RenderWindow* window)
+{
+    if (!mouseOverMenu && checkBuildingMode() && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        m_level->renderBuildinginBuildMode(window, true);
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); //Avoids blinking interface.
+        m_economyManager->deduceResources(m_economyManager->towerCost); //Should be changed by m_currentBuilding when more buildings are avaiable
+        updateTexts();
+    }
+}
+
+bool Interface::checkBuildingMode()
+{
+    if (inCombat)
+    {
+        return false;
+    }
+
+    if (m_economyManager->checkBuildingCosts(m_economyManager->towerCost)) //Should be changed by m_currentBuilding when more buildings are avaiable
+    {
+        m_level->setBuildMode(true);
+    }
+    else
+    {
+        m_level->setBuildMode(false);
+    }
+
+    return m_level->getBuildMode();
 }

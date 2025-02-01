@@ -29,8 +29,9 @@ set(PROJECT_HEADERS
 
     include/Gameplay/EconomyManager.h
     include/Gameplay/Enemy.h
+    include/Gameplay/EnemyManager.h
     include/Gameplay/GameObject.h
-    include/Gameplay/Zombie.h
+    include/Gameplay/Goblin.h
 
     include/Render/SFMLOrthogonalLayer.h
 
@@ -50,7 +51,8 @@ set(PROJECT_SOURCES
     
     src/Gameplay/EconomyManager.cpp
     src/Gameplay/Enemy.cpp
-    src/Gameplay/Zombie.cpp
+    src/Gameplay/EnemyManager.cpp
+    src/Gameplay/Goblin.cpp
 
     src/UI/MainMenu.cpp   
     src/UI/Interface.cpp   

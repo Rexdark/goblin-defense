@@ -9,9 +9,7 @@ class AssetManager;
 class EconomyManager;
 class Level;
 class Interface;
-
-//class Enemy;
-//class ObjectLayer;
+class EnemyManager;
 
 class World
 {
@@ -28,9 +26,9 @@ class World
 		Level* m_level{ nullptr };
 		EconomyManager* m_economyManager{ nullptr };
 		Interface* m_interface{ nullptr };
+		EnemyManager* m_enemyManager{ nullptr };
 
-		//MapLayer* m_layerTwo{ nullptr };
+		sf::RenderWindow* m_window{ nullptr };
+
 		//ObjectLayer* m_collisionLayer{ nullptr };
-
-		//Enemy* m_enemy{ nullptr };
 };

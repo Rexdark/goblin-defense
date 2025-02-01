@@ -1,6 +1,7 @@
 #include <Core/Level.h>
 #include <Core/World.h>
 #include <Gameplay/EconomyManager.h>
+#include <Gameplay/EnemyManager.h>
 #include <UI/Interface.h>
 
 bool World::load(bool newGame, float width, float height, AssetManager* assetManager)
@@ -11,8 +12,13 @@ bool World::load(bool newGame, float width, float height, AssetManager* assetMan
 
 	m_economyManager = new EconomyManager();
 
+	EnemyManager* enemymanager = new EnemyManager();
+	m_enemyManager = enemymanager->getInstance();
+
+	m_enemyManager->getInstance()->init(m_level);
+
 	m_interface = new Interface();	
-	m_interface->interfaceInit(width, height, assetManager, m_economyManager, m_level);
+	m_interface->interfaceInit(width, height, assetManager, m_economyManager, m_enemyManager, m_level);
 
 	if (m_level)
 	{
@@ -44,41 +50,21 @@ void World::unload()
 	}
 }
 
-//void World::update(uint32_t deltaMilliseconds)
-//{
-//	// To-Do: update level
-//	m_layerZero->update(sf::milliseconds(deltaMilliseconds));
-//
-//	// Update actors
-//	m_enemy->update(deltaMilliseconds);
-//
-//	// Check for collisions (We could do it in a function here or have a collision manager if it gets complex)
-//	const auto& collisionShapes = m_collisionLayer->getShapes();
-//	for (const auto* shape : collisionShapes)
-//	{
-//		if (shape->getGlobalBounds().intersects(m_enemy->getBounds()))
-//		{
-//#if DEBUG_MODE
-//			printf("Collision is detected");
-//#endif
-//		}
-//	}
-//}
-
 bool World::update(uint32_t deltaMilliseconds, sf::RenderWindow* window)
 {
-	return m_interface->update(window);
+	m_level->update(window);
+	m_enemyManager->update(deltaMilliseconds);
+
+	bool mainMenu = m_interface->update(window);
+
+	return mainMenu;
 }
 
 void World::render(sf::RenderWindow& window)
 {
-	/*window.draw(*m_layerZero);
-	window.draw(*m_layerOne);
-	window.draw(*m_layerTwo);
-	window.draw(*m_collisionLayer);
-	m_enemy->render(window);*/
-
 	m_level->render(window);
-	m_interface->draw(window);
+	m_enemyManager->render(window);//Should render between later 1 and 2 of level.
 
+
+	m_interface->draw(window);
 }

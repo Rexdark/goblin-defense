@@ -15,3 +15,5 @@ constexpr char* SAVES_PATH = "../saves/";
 
 constexpr char* MAIN_TILESET_FILE_NAME = "map.dat";
 constexpr char* MAIN_LEVEL_FILE_NAME = "Main_Level";
+
+constexpr char* ENEMY_GOBLIN_PATH = "../config/goblin.ini";

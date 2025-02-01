@@ -13,7 +13,7 @@ class GameObject
 
 		GameObject() = default;
 		GameObject(float x, float y) : m_position{ x,y } {}
-		virtual ~GameObject() = default; // IMPORTANT! If we don't define it as virtual, we will leak memory
+		virtual ~GameObject() = default;
 
 		const sf::Vector2f& getPosition() const { return m_position; }
 		sf::Vector2f& getPosition() { return m_position; }

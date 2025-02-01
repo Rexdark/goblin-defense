@@ -50,7 +50,6 @@ bool Game::isRunning() const
 
 void Game::update(uint32_t deltaMilliseconds)
 {
-	// Check if user closed the window
     for (auto event = sf::Event(); m_window->pollEvent(event);)
     {
         if (event.type == sf::Event::Closed)
@@ -69,7 +68,6 @@ void Game::update(uint32_t deltaMilliseconds)
 
             if (!m_mainMenu)
             {
-                printf("Instantiating new main menu.\n");
                 m_mainMenu = new MainMenu(m_view.getSize().x, m_view.getSize().y, m_assetManager);
             }
 
@@ -86,6 +84,7 @@ void Game::update(uint32_t deltaMilliseconds)
                 }
                 if (option == 1)
                 {
+                    newGame = false;
                     m_gameState = State_World;
                     deleteMainMenu();
                 }
@@ -113,7 +112,6 @@ void Game::update(uint32_t deltaMilliseconds)
 
             if (m_world->update(deltaMilliseconds, m_window))
             {
-                printf("Returning to main menu.\n");
                 m_gameState = State_MainMenu;
                 std::this_thread::sleep_for(std::chrono::milliseconds(250));
             }
@@ -200,14 +198,12 @@ void Game::deleteWorld()
 
 void createDefaultConfigFile(std::string configPath)
 {
-    //std::string gameTitle = GAME_TITLE;
     uint32_t screenWidth = SCREEN_WIDTH;
     uint32_t screenHeight = SCREEN_HEIGHT;
     uint32_t frameRateLimit = FRAMERATE;
 
     std::filesystem::path filePath(configPath);
 
-    //Just in case folder might have been deleted by user
     if (!std::filesystem::exists(filePath.parent_path())) {
         std::filesystem::create_directories(filePath.parent_path());
     }
@@ -218,7 +214,6 @@ void createDefaultConfigFile(std::string configPath)
     }
 
     configFile << "[GameSettings]" << std::endl;
-    //configFile << "GameTitle=" << gameTitle << std::endl;
     configFile << "ScreenWidth=" << screenWidth << std::endl;
     configFile << "ScreenHeight=" << screenHeight << std::endl;
     configFile << "FrameRateLimit=" << frameRateLimit << std::endl;

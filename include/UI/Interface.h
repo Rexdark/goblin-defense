@@ -4,13 +4,14 @@
 
 class AssetManager;
 class EconomyManager;
+class Enemymanager;
 class Level;
 
 class Interface
 {
     public:
 
-        void interfaceInit(float width, float height, AssetManager* assetManager, EconomyManager* economyManager, Level* level);
+        void interfaceInit(float width, float height, AssetManager* assetManager, EconomyManager* economyManager, EnemyManager* enemyManager, Level* level);
 
         bool update(sf::RenderWindow* window);
 
@@ -20,6 +21,8 @@ class Interface
 
         bool pauseMenu = false;
         bool computingTurn = false;
+        bool mouseOverMenu = false;
+        bool inCombat = false;
 
         sf::Font m_font{};
 
@@ -47,9 +50,10 @@ class Interface
         sf::Text saveGameText{};
         sf::Text exitGameText{};
 
-        Level* m_level{ nullptr };
-
         EconomyManager* m_economyManager{ nullptr };
+        EnemyManager* m_enemyManager{ nullptr };
+        Level* m_level{ nullptr };
+        sf::RenderWindow* m_window{ nullptr };
 
         std::string getResourceTextString(int index, const EconomyManager* economyManager) const;
 
@@ -66,4 +70,7 @@ class Interface
         void nextTurn();
 
         void updateTexts();
+
+        void buildingLogic(sf::RenderWindow* window);
+        bool checkBuildingMode();
 };

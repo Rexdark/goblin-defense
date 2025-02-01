@@ -1,10 +1,23 @@
 #pragma once
 
+class Level;
+class EnemyManager;
+
 class EconomyManager
 {
 	public:
 
 		EconomyManager();
+
+		struct resources
+		{
+			int requisitionPoints = 0;
+			int food = 0;
+			int wood = 0;
+			int stone = 0;
+		};
+
+		const resources towerCost = { 0, 100, 150, 200 };
 
 		int getRequisitionPoints() const;
 		void setRequisitionPoints(int value);
@@ -26,15 +39,10 @@ class EconomyManager
 
 		void nextTurn();
 
-	private: //Configure and add resource mine levels if there's enough time. They are not necessary for the demo.
+		bool checkBuildingCosts(resources selectedBuilding);
+		void deduceResources(resources cost);
 
-		struct resources 
-		{
-			int requisitionPoints = 0;
-			int food = 0;
-			int wood = 0;
-			int stone = 0;
-		};
+	private: //Configure and add resource mine levels if there's enough time. They are not necessary for the demo.
 
 		resources m_currentResources = {};
 		bool m_currentResourcesInitialized = false;

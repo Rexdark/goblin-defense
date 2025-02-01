@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
@@ -87,6 +88,7 @@ int MainMenu::menuLogic(sf::RenderWindow* window)
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
         return m_selectedItemIndex;
     }
 
