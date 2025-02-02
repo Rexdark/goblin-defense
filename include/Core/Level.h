@@ -41,11 +41,14 @@ class Level
         int getRows(int layer = 0) const;
         int getCols(int layer = 0, int row = 0) const;
         std::vector<Level::Tile> getEnemySpawnTiles();
-        sf::Vector2i getTileCoordinates(int row, int col);
-        MapLayer* getPathSearchMapLayer();
+
+        sf::Vector2i getTilebyCoordinates(int width, int height);
+        sf::Vector2f getTileCoordinates(int row, int col);
+
+        std::vector<std::vector<uint32_t>> getPathSearchMapLayer();
 
         void update(sf::RenderWindow* window);
-        void render(sf::RenderWindow& window);
+        void render(sf::RenderWindow& window, bool terrainLayer);
 
         void saveToFile();
         void loadFromFile();
@@ -94,7 +97,6 @@ class Level
         int getMapRowNumber();
         int getMapColNumber();
 
-        sf::Vector2i getTilebyCoordinates(int width, int height);
         sf::Vector2i getTileUnderMouse(sf::RenderWindow* window);
         void renderSelectedBuilding(sf::Vector2i tile, bool build);
         void clearPreviewLayer();

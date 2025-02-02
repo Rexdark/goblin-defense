@@ -26,6 +26,8 @@ class EnemyManager
 		Enemy* getEnemy(const int id);
 		void deleteEnemy(const int id);
 
+		int getGoblinsEscaped();
+
 		bool checkEnemyArrayEmpty();
 
 		void update(uint32_t deltaMilliseconds);
@@ -33,7 +35,7 @@ class EnemyManager
 
 	private:
 
-		int newEnemy(std::string enemyType, float positionWidth, float positionHeight);
+		int goblinsEscaped = 0;
 
 		static EnemyManager* em_instance;
 		Level* m_level{ nullptr };
@@ -41,6 +43,10 @@ class EnemyManager
 		int m_nextID = 0;
 
 		std::unordered_map<int, Enemy*> enemyArray;
+
+		std::vector<int> enemiesToDelete;
+
+		void newEnemy(std::string enemyType, float positionWidth, float positionHeight);
 
 		int getNextAvaiableID();
 		Level::Tile selectRandomTile(std::vector<Level::Tile> spawnTileArray);

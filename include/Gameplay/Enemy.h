@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 #include <Gameplay/GameObject.h>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-class MapLayer;
+class Level;
 
 class Enemy : public GameObject
 {
@@ -15,6 +15,7 @@ class Enemy : public GameObject
 
 		struct EnemyDescriptor
 		{
+			int id = 0;
 			sf::Vector2f position;
 			sf::Vector2f speed{ .0f, .0f };
 			sf::Sprite* sprite{ nullptr };
@@ -24,33 +25,55 @@ class Enemy : public GameObject
 			float frameTime{ 50.0f };
 		};
 
-		bool init( const EnemyDescriptor& enemyDescriptor, MapLayer* mapLayer);
+		bool init( const EnemyDescriptor& enemyDescriptor, std::vector<std::vector<uint32_t>> pathMapVector, Level* level);
 
 		~Enemy() override = default;
 
 		sf::FloatRect getBounds() const { return m_sprite->getGlobalBounds(); };
+		void setDestination(sf::Vector2f destination);
 
 		void update(float deltaMilliseconds) override;
 		void render(sf::RenderWindow& window) override;
 
+		bool getCompleteStatus();
+
 	protected:
 
-		struct Node
-		{
-			sf::Vector2f position;
-			float gCost{ 0.0f };  // Cost from start to current node
-			float hCost{ 0.0f };  // Heuristic cost to the goal
-			float fCost() const { return gCost + hCost; }  // Total cost
-			Node* parent{ nullptr };
+		int id = 0;
 
-			bool operator>(const Node& other) const { return fCost() > other.fCost(); }  // For priority queue
+		bool atDestination = false;
+
+		struct Node {
+			sf::Vector2i position;
+			float gCost = 0.0f;
+			float hCost = 0.0f;
+			float fCost() const { return gCost + hCost; }
+			Node* parent = nullptr;
+
+			bool operator>(const Node& other) const { return fCost() > other.fCost(); }
 		};
 
-		sf::Vector2f searchNextTileBasedOnPath(sf::Vector2f destinationTile);
+		struct Vector2iHash {
+			size_t operator()(const sf::Vector2i& v) const {
+				return std::hash<int>()(v.x) ^ (std::hash<int>()(v.y) << 1);
+			}
+		};
 
-		const std::vector<uint32_t> m_impassableTiles = { 55, 56, 57, 67, 68, 69, 79, 80, 81, 91, 92, 103, 104, 158, 153, 164, 165, 176, 177, 188,  189 };
+		Level* m_level{ nullptr };
 
-		MapLayer* m_mapLayer{ nullptr };
+		sf::Vector2i searchNextTileCoordinates();
+		sf::Vector2i getCurrentTile();
+		sf::Vector2i getDestinationTile();
+
+		const std::unordered_set<uint32_t> m_impassableTiles = { 55, 56, 57, 67, 68, 69, 79, 80, 81, 91, 92, //Cliffs
+																			58,59,60,70,71,72,82,83,84,94,95,//Forests
+																									188,189, //Tower Bases			
+																							145,146,147,148, //Village
+																							157,158,159,160,
+																							169,170,171,172,
+																							181,182,183,184 };
+
+		std::vector<std::vector<uint32_t>> m_pathMapVector = {};
 
 		sf::Sprite* m_sprite{nullptr};
 		float m_tileWidth{ .0f };

@@ -12,7 +12,7 @@ class Goblin : public Enemy
 		{
 		};
 
-		bool init(const GoblinDescriptor& enemyDescriptor, MapLayer* mapLayer);
+		bool init(const GoblinDescriptor& enemyDescriptor, std::vector<std::vector<uint32_t>> pathMapVector, Level* level);
 
 		void update(float deltaMilliseconds) override;
 

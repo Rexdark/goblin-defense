@@ -30,7 +30,7 @@ EnemyManager::~EnemyManager()
 	clear();
 }
 
-int EnemyManager::newEnemy(std::string enemyType, float positionWidth, float positionHeight)
+void EnemyManager::newEnemy(std::string enemyType, float positionWidth, float positionHeight)
 {
 	int id = getNextAvaiableID();
 
@@ -39,7 +39,7 @@ int EnemyManager::newEnemy(std::string enemyType, float positionWidth, float pos
 	if (enemy == nullptr)
 	{
 		printf("Invalid enemy class %s!\n", enemyType.c_str());
-		return 0;
+		return;
 	}
 
 	//printf("Creating enemy: %s\n", enemyType.c_str());
@@ -49,18 +49,18 @@ int EnemyManager::newEnemy(std::string enemyType, float positionWidth, float pos
 	if (enemyDescriptor == nullptr)
 	{
 		printf("Could not get a descriptor!!\n");
-		return 0;
+		return;
 	}
 
 	enemyDescriptor->position = { positionWidth, positionHeight };
-	enemy->init(*enemyDescriptor, m_level->getPathSearchMapLayer());
+	enemyDescriptor->id = id;
+	enemy->init(*enemyDescriptor, m_level->getPathSearchMapLayer(), m_level);
+	enemy->setDestination(m_level->getTileCoordinates(38, 11)); //End of Level
 	enemy->setPosition(enemyDescriptor->position);
-
-	//printf("Creating enemy %s at position %f,%f\n", enemyType.c_str(), enemyDescriptor->position.x, enemyDescriptor->position.y);
 
 	enemyArray[id] = enemy;
 
-	return id;
+	return;
 }
 
 void EnemyManager::spawnEnemies(int numberOfEnemies, std::string enemyType, std::vector<Level::Tile> spawnTileArray)
@@ -69,7 +69,7 @@ void EnemyManager::spawnEnemies(int numberOfEnemies, std::string enemyType, std:
 	{
 		Level::Tile spawnTile = selectRandomTile(spawnTileArray);
 
-		sf::Vector2i SpawnCoordinates = m_level->getTileCoordinates(spawnTile.col, spawnTile.row);
+		sf::Vector2f SpawnCoordinates = m_level->getTileCoordinates(spawnTile.col, spawnTile.row);
 
 		newEnemy(enemyType, SpawnCoordinates.x, SpawnCoordinates.y);
 	}
@@ -101,6 +101,11 @@ void EnemyManager::deleteEnemy(int id)
 	}
 }
 
+int EnemyManager::getGoblinsEscaped()
+{
+	return goblinsEscaped;
+}
+
 bool EnemyManager::checkEnemyArrayEmpty()
 {
 	if (enemyArray.empty())
@@ -115,8 +120,25 @@ void EnemyManager::update(uint32_t deltaMilliseconds)
 {
 	for (auto& it : enemyArray)
 	{
-		it.second->update(deltaMilliseconds);
+		if (it.second != nullptr)
+		{
+			it.second->update(deltaMilliseconds);
+
+			if (it.second->getCompleteStatus())
+			{
+				goblinsEscaped++;
+				enemiesToDelete.push_back(it.first);
+			}
+		}
 	}
+
+	
+	for (int id : enemiesToDelete)
+	{
+		deleteEnemy(id);
+	}
+
+	enemiesToDelete.clear();
 }
 
 void EnemyManager::render(sf::RenderWindow& window)
@@ -140,7 +162,6 @@ Level::Tile EnemyManager::selectRandomTile(std::vector<Level::Tile> spawnTileArr
 
 	if (spawnTileArray.empty())
 	{
-		printf("Enemy tile spawn pool is empty!\n");
 		return tile;
 	}
 
@@ -150,8 +171,6 @@ Level::Tile EnemyManager::selectRandomTile(std::vector<Level::Tile> spawnTileArr
 	int randomIndex = dis(gen);
 
 	tile = spawnTileArray[randomIndex];
-
-	printf("Selected spawn tile [%d][%d]\n", tile.row, tile.col);
 
 	return tile;
 }
@@ -214,6 +233,11 @@ Enemy::EnemyDescriptor* EnemyManager::loadFromConfig(std::string configPath)
 		else if (line.find("TileHeight=") == 0)
 		{
 			enemyDescriptor->Height = std::stoi(line.substr(11));
+		}
+		else if (line.find("Speed=") == 0)
+		{
+			enemyDescriptor->speed.x = std::stof(line.substr(6));
+			enemyDescriptor->speed.y = std::stof(line.substr(6));
 		}
 		else if (line.find("FrameCount=") == 0)
 		{

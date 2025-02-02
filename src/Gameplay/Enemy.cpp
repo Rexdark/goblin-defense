@@ -1,14 +1,16 @@
 #include <queue>
-#include <unordered_set>
+#include <unordered_map>
 
-#include <Render/SFMLOrthogonalLayer.h>
+#include <Core/Level.h>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <Gameplay/Enemy.h>
 
-bool Enemy::init(const EnemyDescriptor& enemyDescriptor, MapLayer* mapLayer)
+bool Enemy::init(const EnemyDescriptor& enemyDescriptor, std::vector<std::vector<uint32_t>> pathMapVector, Level* level)
 {
+    id = enemyDescriptor.id;
+
 	m_sprite = enemyDescriptor.sprite;
 
 	m_sprite->setPosition(enemyDescriptor.position);
@@ -19,87 +21,107 @@ bool Enemy::init(const EnemyDescriptor& enemyDescriptor, MapLayer* mapLayer)
 	m_frameTime = enemyDescriptor.frameTime;
     m_speed = enemyDescriptor.speed;
 
-    m_mapLayer = mapLayer;
+    m_pathMapVector = pathMapVector;
+
+    m_level = level;
 
 	return true;
 }
 
-sf::Vector2f Enemy::searchNextTileBasedOnPath(sf::Vector2f destinationTile)
-{
-    const std::vector<sf::Vector2f> directions = {
-        { 0, -1 }, 
-        { 0, 1 },  
-        { -1, 0 }, 
-        { 1, 0 }   
+sf::Vector2i Enemy::searchNextTileCoordinates() {
+
+    sf::Vector2i currentTile = getCurrentTile();
+    sf::Vector2i destinationTile = getDestinationTile();
+
+    //printf("Current tile is [%d][%d]\n", currentTile.x, currentTile.y);
+    //printf("Destination tile is [%d][%d]\n", destinationTile.x, destinationTile.y);
+
+    const std::vector<sf::Vector2i> directions = {
+        {0, -1}, {0, 1}, {-1, 0}, {1, 0}
     };
 
-    auto heuristic = [](const sf::Vector2f& a, const sf::Vector2f& b) {
-        return std::abs(a.x - b.x) + std::abs(a.y - b.y);  
+    auto heuristic = [](const sf::Vector2i& a, const sf::Vector2i& b) {
+        return static_cast<float>(std::abs(a.x - b.x) + std::abs(a.y - b.y));
         };
 
-    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openList;
-    std::unordered_map<std::string, Node*> openSet;
-    std::unordered_map<std::string, bool> closedSet;
+    sf::Vector2i start = { currentTile.y, currentTile.x };
+    sf::Vector2i goal = { destinationTile.y, destinationTile.x };
 
-    Node* startNode = new Node();
-    startNode->position = m_position;  
-    startNode->gCost = 0;
-    startNode->hCost = heuristic(m_position, destinationTile);
-    openList.push(*startNode);
-    openSet[std::to_string(startNode->position.x) + "," + std::to_string(startNode->position.y)] = startNode;
+    auto compare = [](const Node* a, const Node* b) { return a->fCost() > b->fCost(); };
+    std::priority_queue<Node*, std::vector<Node*>, decltype(compare)> openList(compare);
 
-    while (!openList.empty())
-    {
-        Node* currentNode = new Node(openList.top());
+    std::unordered_map<sf::Vector2i, Node*, Vector2iHash> openSet;
+    std::unordered_map<sf::Vector2i, bool, Vector2iHash> closedSet;
+
+    Node* startNode = new Node{ start, 0.0f, heuristic(start, goal), nullptr };
+    openList.push(startNode);
+    openSet[start] = startNode;
+
+    while (!openList.empty()) {
+        Node* currentNode = openList.top();
         openList.pop();
+        openSet.erase(currentNode->position);
 
-        
-        if (currentNode->position == destinationTile)
-        {
-            std::vector<sf::Vector2f> path;
-            Node* node = currentNode;
+        if (currentNode->position == goal) {
 
-            while (node != nullptr)
-            {
-                path.push_back(node->position);
-                node = node->parent;
+            std::vector<sf::Vector2i> path;
+            for (Node* node = currentNode; node != nullptr; node = node->parent) {
+                path.emplace_back(static_cast<float>(node->position.x), static_cast<float>(node->position.y));
             }
 
-            std::reverse(path.begin(), path.end());
+            for (auto& [key, node] : openSet) delete node;
 
-            
-            if (path.size() > 1)
-                return path[1]; 
-            else
-                return path[0]; 
+            std::reverse(path.begin(), path.end());
+            return path.size() > 1 ? path[1] : path[0];
         }
 
-        closedSet[std::to_string(currentNode->position.x) + "," + std::to_string(currentNode->position.y)] = true;
+        closedSet[currentNode->position] = true;
 
-        for (const auto& direction : directions)
-        {
-            sf::Vector2f neighbor = currentNode->position + direction;
+        for (const auto& dir : directions) {
+            sf::Vector2i neighbor = currentNode->position + dir;
 
-            if (m_mapLayer->getTile(neighbor.x, neighbor.y).ID != 0 || closedSet[std::to_string(neighbor.x) + "," + std::to_string(neighbor.y)])
+            if (neighbor.y < 0 || neighbor.x < 0 || neighbor.y >= m_pathMapVector.size() || neighbor.x >= m_pathMapVector[0].size()) {
                 continue;
+            }
+
+            if (m_impassableTiles.count(m_pathMapVector[neighbor.y][neighbor.x])
+                || closedSet.count(neighbor)) {
+                continue;
+            }
 
             float tentativeGCost = currentNode->gCost + 1;
 
-            auto neighborNode = new Node();
-            neighborNode->position = neighbor;
-            neighborNode->gCost = tentativeGCost;
-            neighborNode->hCost = heuristic(neighbor, destinationTile);
-            neighborNode->parent = currentNode;
+            if (!openSet.count(neighbor) || tentativeGCost < openSet[neighbor]->gCost) {
 
-            if (openSet.find(std::to_string(neighborNode->position.x) + "," + std::to_string(neighborNode->position.y)) == openSet.end())
-            {
-                openList.push(*neighborNode);
-                openSet[std::to_string(neighborNode->position.x) + "," + std::to_string(neighborNode->position.y)] = neighborNode;
+                Node* neighborNode = new Node{ neighbor, tentativeGCost, heuristic(neighbor, goal), currentNode };
+                openList.push(neighborNode);
+                openSet[neighbor] = neighborNode;
             }
         }
     }
 
-    return m_position;
+    for (auto& [key, node] : openSet) delete node;
+    return currentTile;
+}
+
+sf::Vector2i Enemy::getCurrentTile()
+{
+    sf::Vector2i currentTile = m_level->getTilebyCoordinates(m_position.x, m_position.y);
+
+    return currentTile;
+}
+
+sf::Vector2i Enemy::getDestinationTile()
+{
+
+    sf::Vector2i currentTile = m_level->getTilebyCoordinates(m_destination.x, m_destination.y);
+
+    return currentTile;
+}
+
+void Enemy::setDestination(sf::Vector2f destination)
+{
+    m_destination = destination;
 }
 
 void Enemy::update(float deltaMilliseconds)
@@ -112,6 +134,11 @@ void Enemy::update(float deltaMilliseconds)
 		m_elapsedTime = 0.f;
 		m_currentFrame = (m_currentFrame + 1) % m_frameCount;
 	}
+
+    if (getCurrentTile() == getDestinationTile())
+    {
+        atDestination = true;
+    }
 }
 
 void Enemy::render(sf::RenderWindow& window)
@@ -120,15 +147,6 @@ void Enemy::render(sf::RenderWindow& window)
 	m_sprite->setTextureRect(sf::IntRect(frameX, 0, static_cast<int>(m_tileWidth), static_cast<int>(m_tileHeight)));
 
 	window.draw(*m_sprite);
-
-	// Debug bounding box
-	//const sf::FloatRect spriteBounds = m_sprite->getGlobalBounds();
-	//sf::RectangleShape boundsRect(sf::Vector2f(spriteBounds.width, spriteBounds.height));
-	//boundsRect.setPosition(spriteBounds.left, spriteBounds.top);
-	//boundsRect.setOutlineColor(sf::Color::Red);
-	//boundsRect.setOutlineThickness(2.f);
-	//boundsRect.setFillColor(sf::Color::Transparent);
-	//window.draw(boundsRect);
 }
 
 void Enemy::moveEnemy(float deltaMilliseconds)
@@ -154,4 +172,11 @@ void Enemy::moveEnemy(float deltaMilliseconds)
     {
         m_position += movement;
     }
+
+    setPosition(m_position);
+}
+
+bool Enemy::getCompleteStatus()
+{
+    return atDestination;
 }

@@ -337,15 +337,25 @@ void Level::update(sf::RenderWindow* window)
     }
 }
 
-void Level::render(sf::RenderWindow& window)
+void Level::render(sf::RenderWindow& window, bool terrainLayer)
 {
-    for (int layer = 0; layer < getMapLayerNumber(); ++layer)
+    if (terrainLayer)
     {
-        if (layer == 3 && !m_buildModeEnabled)
+        for (int layer = 0; layer < 2; ++layer)
         {
-            continue;
+            window.draw(*m_mapLayers[layer]);
         }
-        window.draw(*m_mapLayers[layer]);
+    }
+    else
+    {
+        for (int layer = 2; layer < getMapLayerNumber(); ++layer)
+        {
+            if (layer == 3 && !m_buildModeEnabled)
+            {
+                continue;
+            }
+            window.draw(*m_mapLayers[layer]);
+        }
     }
 }
 
@@ -444,40 +454,39 @@ sf::Vector2i Level::getTilebyCoordinates(int height, int width)
     return vector;
 }
 
-sf::Vector2i Level::getTileCoordinates(int row, int col)
+sf::Vector2f Level::getTileCoordinates(int row, int col)
 {
     int tile_size = m_tilemap->getTileSize().x; //We asume square tiles since nobody's going to use rectangular ones
 
-    int height = (tile_size * row) + tile_size / 2;
+    float height = (tile_size * row) + tile_size / 2;
 
-    int witdth = (tile_size * col) + tile_size / 2;
+    float witdth = (tile_size * col) + tile_size / 2;
 
-    sf::Vector2i vector = { height, witdth };
+    sf::Vector2f vector = { height, witdth };
 
     return vector;
 }
 
-MapLayer* Level::getPathSearchMapLayer()
+std::vector<std::vector<uint32_t>> Level::getPathSearchMapLayer()
 {
-    MapLayer* pathMapLayer = new MapLayer(*m_tilemap, 1);
-    MapLayer& mapLayer2 = (*m_mapLayers)[2];
+    std::vector<std::vector<uint32_t>> pathMapVector = (*m_tilemap_vector3)[1];
+    std::vector<std::vector<uint32_t>> buildingLayers= (*m_tilemap_vector3)[2];
 
-    sf::FloatRect bounds = (*m_mapLayers)[1].getGlobalBounds();
-    int width = bounds.width;
-    int height = bounds.height;
+    int width = pathMapVector.size();
+    int height = pathMapVector[0].size();
 
     for (int x = 0; x < width; ++x)
     {
         for (int y = 0; y < height; ++y)
         {
-            if (mapLayer2.getTile(x, y).ID != 0)
+            if (buildingLayers[x][y] != 0)
             {
-                pathMapLayer->setTile(x, y, mapLayer2.getTile(x, y), true);
+                pathMapVector[x][y] = buildingLayers[x][y];
             }
         }
     }
 
-    return pathMapLayer;
+    return pathMapVector;
 }
 
 sf::Vector2i Level::getTileUnderMouse(sf::RenderWindow* window)

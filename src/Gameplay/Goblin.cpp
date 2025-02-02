@@ -1,30 +1,30 @@
+#include <Core/Level.h>
 #include <Gameplay/Goblin.h>
 
-bool Goblin::init(const GoblinDescriptor& goblinDescriptor, MapLayer* mapLayer)
+bool Goblin::init(const GoblinDescriptor& goblinDescriptor, std::vector<std::vector<uint32_t>> pathMapVector, Level* level)
 {	
-	return Enemy::init(goblinDescriptor, mapLayer);
+	return Enemy::init(goblinDescriptor, pathMapVector, level);
 }
 
 void Goblin::update(float deltaMilliseconds)
 {
-	if (m_position != m_destination)
+
+	if ((std::abs(m_destination.x - m_position.x > 0.1f) || std::abs(m_destination.y - m_position.y > 0.1f)))
 	{
-		if (std::abs(m_nextTileCoordinates.x) < 0.001f || std::abs(m_nextTileCoordinates.y) > 0.001f)
-		{
-			m_nextTileCoordinates = searchNextTileBasedOnPath(m_destination);
-		}
 
 		if (m_position != m_nextTileCoordinates)
 		{
 			moveEnemy(deltaMilliseconds);
 		}
-		else
+
+		if ((std::abs(m_nextTileCoordinates.x < 0.001f) || std::abs(m_nextTileCoordinates.y < 0.001f)) ||
+			(std::abs(m_nextTileCoordinates.x - m_position.x < 0.001f) || std::abs(m_nextTileCoordinates.y - m_position.y < 0.001f)))
 		{
-			m_nextTileCoordinates = searchNextTileBasedOnPath(m_destination);
+
+			sf::Vector2i nextTile = searchNextTileCoordinates();
+			m_nextTileCoordinates = m_level->getTileCoordinates(nextTile.x, nextTile.y);
 		}
 	}
-
-	
 
 	Enemy::update(deltaMilliseconds);
 }

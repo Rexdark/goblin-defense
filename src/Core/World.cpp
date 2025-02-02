@@ -52,6 +52,11 @@ void World::unload()
 
 bool World::update(uint32_t deltaMilliseconds, sf::RenderWindow* window)
 {
+	if (m_enemyManager->getGoblinsEscaped() >= 20)  //Lose condition, there's no lose screen yet
+	{
+		return true;
+	}
+
 	m_level->update(window);
 	m_enemyManager->update(deltaMilliseconds);
 
@@ -62,8 +67,9 @@ bool World::update(uint32_t deltaMilliseconds, sf::RenderWindow* window)
 
 void World::render(sf::RenderWindow& window)
 {
-	m_level->render(window);
-	m_enemyManager->render(window);//Should render between later 1 and 2 of level.
+	m_level->render(window, true);
+	m_enemyManager->render(window); //Enemies go between the terrain layer and the building layer.
+	m_level->render(window, false);
 
 
 	m_interface->draw(window);
