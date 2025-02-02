@@ -183,7 +183,7 @@ private:
         sf::Time startTime;
         sf::Time currentTime;
         tmx::Tileset::Tile animTile;
-        std::uint8_t flipFlags;
+        std::uint8_t flipFlags = 0;
     };
 
     class Chunk final : public sf::Transformable, public sf::Drawable

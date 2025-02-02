@@ -527,6 +527,27 @@ void Level::renderBuildinginBuildMode(sf::RenderWindow* window, bool build)
     }
 }
 
+std::vector<sf::Vector2f> Level::getTowerCoordinates()
+{
+    std::vector<sf::Vector2f> towerCoords;
+    int32_t towerTile = 188;
+
+    for (size_t y = 0; y < (*m_tilemap_vector3)[2].size(); ++y) {
+        for (size_t x = 0; x < (*m_tilemap_vector3)[2][y].size(); ++x) {
+            if ((*m_tilemap_vector3)[2][y][x] == towerTile) {
+
+                sf::Vector2f tileCoords = getTileCoordinates( x, y );
+
+                tileCoords += {0, -16}; //Adjust for center of tower.
+
+                towerCoords.emplace_back(tileCoords);
+            }
+        }
+    }
+
+    return towerCoords;
+}
+
 bool Level::checkIfCanBuild(sf::Vector2i tile)
 {
     sf::Vector2i buildingSize = { 4, 2 }; //This won't be need when loading building settings from file

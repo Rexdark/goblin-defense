@@ -124,6 +124,16 @@ void Enemy::setDestination(sf::Vector2f destination)
     m_destination = destination;
 }
 
+void Enemy::setKilled()
+{
+    killed = true;
+}
+
+bool Enemy::getKilled() const
+{
+    return killed;
+}
+
 void Enemy::update(float deltaMilliseconds)
 {
 	m_sprite->setPosition(m_position);
@@ -147,6 +157,11 @@ void Enemy::render(sf::RenderWindow& window)
 	m_sprite->setTextureRect(sf::IntRect(frameX, 0, static_cast<int>(m_tileWidth), static_cast<int>(m_tileHeight)));
 
 	window.draw(*m_sprite);
+}
+
+bool Enemy::getCompleteStatus() const
+{
+    return false;
 }
 
 void Enemy::moveEnemy(float deltaMilliseconds)
@@ -174,9 +189,4 @@ void Enemy::moveEnemy(float deltaMilliseconds)
     }
 
     setPosition(m_position);
-}
-
-bool Enemy::getCompleteStatus()
-{
-    return atDestination;
 }

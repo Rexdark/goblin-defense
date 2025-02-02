@@ -86,6 +86,7 @@ bool Interface::update(sf::RenderWindow* window)
         if (m_enemyManager->checkEnemyArrayEmpty())
         {
             inCombat = false;
+            m_enemyManager->deleteTowers();
         }
     }
 
@@ -314,7 +315,8 @@ void Interface::nextTurn()
 {
     m_economyManager->nextTurn();
     inCombat = true;
-    m_enemyManager->EnemyManager::getInstance()->spawnEnemies(5, "Goblin", m_level->getEnemySpawnTiles());
+    m_enemyManager->placeTowers();
+    m_enemyManager->EnemyManager::getInstance()->spawnEnemies(10, "Goblin", m_level->getEnemySpawnTiles());
     updateTexts();
 }
 

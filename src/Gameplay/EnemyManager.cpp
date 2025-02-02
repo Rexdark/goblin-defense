@@ -6,6 +6,7 @@
 #include "Gameplay/Enemy.h"
 #include "Gameplay/EnemyManager.h"
 #include "Gameplay/Goblin.h"
+#include "Gameplay/Tower.h"
 #include <Utils/Constants.h>
 #include <Utils/Tools.h>
 
@@ -118,6 +119,8 @@ bool EnemyManager::checkEnemyArrayEmpty()
 
 void EnemyManager::update(uint32_t deltaMilliseconds)
 {
+	updateTowers(deltaMilliseconds);
+
 	for (auto& it : enemyArray)
 	{
 		if (it.second != nullptr)
@@ -127,6 +130,11 @@ void EnemyManager::update(uint32_t deltaMilliseconds)
 			if (it.second->getCompleteStatus())
 			{
 				goblinsEscaped++;
+				enemiesToDelete.push_back(it.first);
+			}
+
+			if (it.second->getKilled())
+			{
 				enemiesToDelete.push_back(it.first);
 			}
 		}
@@ -144,6 +152,10 @@ void EnemyManager::update(uint32_t deltaMilliseconds)
 void EnemyManager::render(sf::RenderWindow& window)
 {
 	for (auto& it : enemyArray)
+	{
+		it.second->render(window);
+	}
+	for (auto& it : towerArray)
 	{
 		it.second->render(window);
 	}
@@ -252,6 +264,36 @@ Enemy::EnemyDescriptor* EnemyManager::loadFromConfig(std::string configPath)
 	configFile.close();
 
 	return enemyDescriptor;
+}
+
+void EnemyManager::placeTowers()
+{
+	for (sf::Vector2f& towerCoords : m_level->getTowerCoordinates())
+	{
+		int id = getNextAvaiableID();
+		Tower* tower = new Tower();
+		tower->setPosition(towerCoords);
+		towerArray[id] = tower;
+	}
+}
+
+void EnemyManager::updateTowers(uint32_t deltaMilliseconds)
+{
+	for (auto& tower : towerArray)
+	{
+		tower.second->update(deltaMilliseconds);
+		tower.second->setEnemyArray(&enemyArray);
+	}
+}
+
+void EnemyManager::deleteTowers()
+{
+	for (auto& tower : towerArray)
+	{
+		delete tower.second;
+	}
+
+	towerArray.clear();
 }
 
 void EnemyManager::clear()

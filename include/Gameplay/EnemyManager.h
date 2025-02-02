@@ -11,6 +11,7 @@ namespace sf
 }
 
 class Level;
+class Tower;
 
 class EnemyManager
 {
@@ -25,6 +26,9 @@ class EnemyManager
 		void spawnEnemies(int numberOfEnemies, std::string enemyType, std::vector<Level::Tile> spawnTileArray);
 		Enemy* getEnemy(const int id);
 		void deleteEnemy(const int id);
+
+		void placeTowers();
+		void deleteTowers();
 
 		int getGoblinsEscaped();
 
@@ -43,6 +47,7 @@ class EnemyManager
 		int m_nextID = 0;
 
 		std::unordered_map<int, Enemy*> enemyArray;
+		std::unordered_map<int, Tower*> towerArray;
 
 		std::vector<int> enemiesToDelete;
 
@@ -55,6 +60,8 @@ class EnemyManager
 		std::string getEnemyConfigPathbyType(std::string enemyType);
 		
 		Enemy::EnemyDescriptor* loadFromConfig(const std::string configPath);
+
+		void updateTowers(uint32_t deltaMilliseconds);
 
 		void clear();
 };

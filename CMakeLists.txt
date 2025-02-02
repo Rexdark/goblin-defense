@@ -32,6 +32,8 @@ set(PROJECT_HEADERS
     include/Gameplay/EnemyManager.h
     include/Gameplay/GameObject.h
     include/Gameplay/Goblin.h
+    include/Gameplay/Tower.h
+    include/Gameplay/Projectile.h
 
     include/Render/SFMLOrthogonalLayer.h
 
@@ -53,6 +55,8 @@ set(PROJECT_SOURCES
     src/Gameplay/Enemy.cpp
     src/Gameplay/EnemyManager.cpp
     src/Gameplay/Goblin.cpp
+    src/Gameplay/Tower.cpp
+    src/Gameplay/Projectile.cpp
 
     src/UI/MainMenu.cpp   
     src/UI/Interface.cpp   

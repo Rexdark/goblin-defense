@@ -4,7 +4,7 @@
 
 class AssetManager;
 class EconomyManager;
-class Enemymanager;
+class EnemyManager;
 class Level;
 
 class Interface

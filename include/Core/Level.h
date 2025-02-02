@@ -58,6 +58,8 @@ class Level
 
         void renderBuildinginBuildMode(sf::RenderWindow* window, bool build = false);
 
+        std::vector <sf::Vector2f> getTowerCoordinates();
+
     private:
 
         bool m_buildModeEnabled = false;

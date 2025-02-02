@@ -35,11 +35,16 @@ class Enemy : public GameObject
 		void update(float deltaMilliseconds) override;
 		void render(sf::RenderWindow& window) override;
 
-		bool getCompleteStatus();
+		bool getCompleteStatus() const;
+
+		void setKilled();
+		bool getKilled() const;
 
 	protected:
 
 		int id = 0;
+
+		bool killed = false;
 
 		bool atDestination = false;
 

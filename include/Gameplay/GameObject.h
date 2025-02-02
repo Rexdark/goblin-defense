@@ -19,7 +19,7 @@ class GameObject
 		sf::Vector2f& getPosition() { return m_position; }
 		void setPosition(const sf::Vector2f& newPosition) { m_position = newPosition; }
 
-		virtual void update(float delta) = 0;
+		virtual void update(float deltaMilliseconds) = 0;
 		virtual void render(sf::RenderWindow& window) = 0;
 
 	protected:
