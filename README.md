@@ -15,7 +15,7 @@
   
 ## Installation
 
-To play the demo, simply clone the repository and compile the project.
+To play the demo, simply clone the repository and compile the project. Then open the project with IDE of your choice and compile the game.
 
 ```bash
 git clone https://github.com/Rexdark/goblin-defense
